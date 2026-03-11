@@ -463,6 +463,8 @@ let sessionId    = null;
 let conversationDone = false;
 let generatedData    = null;
 let selectedClipId   = null;
+let selectedClipUrl  = null;
+let currentAudio     = null;   // global Audio instance for clip preview
 let entries = {};
 
 const MONTHS = ["January","February","March","April","May","June",
@@ -552,6 +554,10 @@ async function selectDate(dateStr, existingEntry) {
 
 // ── PANELS ────────────────────────────────────
 function setMain(html) {
+  // Stop any playing audio before replacing content
+  const audioEl = document.getElementById('clipAudio');
+  if (audioEl) { audioEl.pause(); audioEl.src = ''; }
+
   const main = document.getElementById('mainContent');
   main.innerHTML = html;
 }
@@ -749,6 +755,13 @@ function showGenerateResult(data) {
       <p style="font-size:0.9rem;color:var(--muted);margin-bottom:14px">
         Four tracks were generated for your emotion. Select the one that resonates most.
       </p>
+      <div id="clipPlayerRow" class="past-music-player" style="margin-bottom:16px">
+        <span class="music-note-anim">♪</span>
+        <div>
+          <div style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);margin-bottom:4px">NOW PLAYING</div>
+          <audio controls id="clipAudio" style="width:260px;accent-color:var(--accent)"></audio>
+        </div>
+      </div>
       <div class="clips-grid">${clipsHtml}</div>
       <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:10px">
         <button class="btn btn-secondary" onclick="loadEntries()">Discard</button>
@@ -756,20 +769,37 @@ function showGenerateResult(data) {
       </div>
     </div>
   `);
+
+  // Autoplay the first clip
+  if (data.clips && data.clips.length > 0) {
+    selectClip(data.clips[0].id, data.clips[0].url);
+  }
 }
+ 
 
 function selectClip(id, url) {
   selectedClipId = id;
+  selectedClipUrl = url;    
+
+  console.log("Selected clip:", id, url);
+
   document.querySelectorAll('.clip-card').forEach(c => c.classList.remove('selected'));
   document.getElementById(`clip-${id}`)?.classList.add('selected');
+
+  // Play the selected clip
+  const audioEl = document.getElementById('clipAudio');
+  if (audioEl) {
+    audioEl.src = url;
+    audioEl.play().catch(err => console.warn("Autoplay blocked:", err));
+  }
+
   document.getElementById('saveBtn').disabled = false;
 }
-
 async function saveEntry() {
   const res = await fetch('/api/select_music', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({date: selectedDate, clip_id: selectedClipId, clip_url: '#'})
+    body: JSON.stringify({date: selectedDate, clip_id: selectedClipId, clip_url: selectedClipUrl})
   });
   const data = await res.json();
   entries[selectedDate] = data.entry;

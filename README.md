@@ -14,7 +14,10 @@ music_diary/
 ## Setup
 
 ```bash
-pip install flask
+conda create -n musicdiary python=3.12
+conda activate musicdiary
+
+pip install -r requirements.txt
 python app.py
 # Open http://localhost:5000
 ```
