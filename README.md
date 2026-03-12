@@ -22,9 +22,7 @@ python app.py
 # Open http://localhost:5000
 ```
 
-## Backend Placeholders (app.py)
-
-Your teammates fill in these four functions:
+## Backend (app.py)
 
 | Function | What it should do |
 |---|---|
