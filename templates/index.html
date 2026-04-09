@@ -406,6 +406,218 @@
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    /* ═══════════════════════════════════════════
+       EMOTION CONTROL PANEL
+       ═══════════════════════════════════════════ */
+
+    .ecp-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 12px 0 4px;
+      user-select: none;
+    }
+    .ecp-toggle-label {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+    .ecp-toggle-arrow {
+      font-size: 0.7rem;
+      color: var(--muted);
+      transition: transform 0.25s;
+    }
+    .ecp-toggle-arrow.open { transform: rotate(90deg); }
+    .ecp-toggle-line {
+      flex: 1; height: 1px;
+      background: linear-gradient(to right, var(--accent), transparent);
+      opacity: 0.3;
+    }
+
+    .ecp-body {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
+      margin-top: 0;
+    }
+    .ecp-body.open {
+      max-height: 900px;
+      opacity: 1;
+      margin-top: 18px;
+    }
+
+    /* Emotion pad container */
+    .ecp-pad-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 340px;
+      margin: 0 auto 20px;
+    }
+    .ecp-pad {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 14px;
+      cursor: crosshair;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(200,169,110,0.15);
+      touch-action: none;
+      user-select: none;
+      background:
+        radial-gradient(ellipse at 80% 20%, rgba(255,200,80,0.18), transparent 55%),
+        radial-gradient(ellipse at 20% 80%, rgba(200,60,60,0.12), transparent 50%),
+        radial-gradient(ellipse at 20% 20%, rgba(80,120,200,0.14), transparent 55%),
+        radial-gradient(ellipse at 80% 80%, rgba(90,180,120,0.12), transparent 50%),
+        var(--surface2);
+    }
+    .ecp-pad-label {
+      position: absolute;
+      font-family: var(--mono);
+      font-size: 0.55rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+    .ecp-emotion-dot {
+      position: absolute;
+      transform: translate(-50%, 50%);
+      font-family: var(--mono);
+      font-size: 0.55rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      pointer-events: none;
+      transition: color 0.2s, text-shadow 0.2s;
+    }
+    .ecp-emotion-dot.nearest {
+      color: var(--accent) !important;
+      text-shadow: 0 0 8px rgba(200,169,110,0.4);
+    }
+    .ecp-cursor {
+      position: absolute;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(200,169,110,0.9), rgba(200,169,110,0.25));
+      box-shadow: 0 0 16px rgba(200,169,110,0.35);
+      transform: translate(-50%, 50%);
+      pointer-events: none;
+      transition: left 0.1s ease-out, bottom 0.1s ease-out;
+    }
+    .ecp-cursor.dragging { transition: none; }
+
+    .ecp-detected {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+    .ecp-detected strong {
+      color: var(--accent);
+      font-style: normal;
+      text-transform: capitalize;
+    }
+
+    /* Attribute sliders */
+    .ecp-sliders { margin-top: 8px; }
+    .ecp-slider-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 0;
+    }
+    .ecp-slider-icon {
+      width: 20px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .ecp-slider-lo, .ecp-slider-hi {
+      width: 54px;
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .ecp-slider-hi { text-align: right; }
+    .ecp-slider-track {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 3px;
+      background: rgba(200,169,110,0.15);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+    .ecp-slider-track::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 6px rgba(200,169,110,0.3);
+      cursor: pointer;
+    }
+    .ecp-slider-track::-moz-range-thumb {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: none;
+      box-shadow: 0 0 6px rgba(200,169,110,0.3);
+      cursor: pointer;
+    }
+
+    /* Prompt preview */
+    .ecp-prompt-preview {
+      margin-top: 16px;
+      padding: 12px 14px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .ecp-prompt-preview .ecp-prompt-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(200,169,110,0.5);
+      margin-bottom: 6px;
+    }
+
+    .ecp-actions {
+      margin-top: 18px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    /* Regenerating overlay */
+    .ecp-loading {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--accent);
+      padding: 10px 0;
+    }
+    .ecp-spinner {
+      width: 16px; height: 16px;
+      border: 2px solid transparent;
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -456,6 +668,80 @@
 <div id="toast"></div>
 
 <script>
+// ══════════════════════════════════════════════
+//  EMOTION CONTROL PANEL – data & helpers
+// ══════════════════════════════════════════════
+const EMOTIONS_MAP = {
+  happy:       { x: 0.75, y: 0.75 },
+  excited:     { x: 0.88, y: 0.88 },
+  calm:        { x: 0.60, y: 0.18 },
+  romantic:    { x: 0.70, y: 0.32 },
+  hopeful:     { x: 0.68, y: 0.58 },
+  nostalgic:   { x: 0.32, y: 0.28 },
+  melancholic: { x: 0.22, y: 0.18 },
+  sad:         { x: 0.15, y: 0.12 },
+  angry:       { x: 0.18, y: 0.88 },
+  other:       { x: 0.50, y: 0.50 },
+};
+
+const ATTR_DEFS = [
+  { key:'tempo',      label:'Tempo',      lo:'Slower',  hi:'Faster',   icon:'◎' },
+  { key:'brightness', label:'Brightness', lo:'Darker',  hi:'Brighter', icon:'◈' },
+  { key:'complexity', label:'Complexity', lo:'Sparse',  hi:'Dense',    icon:'◇' },
+  { key:'intensity',  label:'Intensity',  lo:'Gentle',  hi:'Powerful', icon:'△' },
+];
+
+// Current control-panel state (updated by UI interactions)
+let ecpState = { padX:0.5, padY:0.5, tempo:0.5, brightness:0.5, complexity:0.5, intensity:0.5 };
+
+function ecpNearestEmotion(x, y) {
+  let best = 'other', bestD = Infinity;
+  for (const [name, pos] of Object.entries(EMOTIONS_MAP)) {
+    const d = Math.hypot(pos.x - x, pos.y - y);
+    if (d < bestD) { bestD = d; best = name; }
+  }
+  return best;
+}
+
+function ecpBuildPrompt() {
+  const emo = ecpNearestEmotion(ecpState.padX, ecpState.padY);
+  const adj = [];
+  if (ecpState.tempo > 0.65)      adj.push('uptempo');
+  else if (ecpState.tempo < 0.35) adj.push('slow');
+  if (ecpState.brightness > 0.65)      adj.push('bright');
+  else if (ecpState.brightness < 0.35) adj.push('dark');
+  if (ecpState.complexity > 0.65)      adj.push('richly layered');
+  else if (ecpState.complexity < 0.35) adj.push('minimal');
+  if (ecpState.intensity > 0.65)      adj.push('powerful');
+  else if (ecpState.intensity < 0.35) adj.push('gentle');
+
+  const prefix = adj.length > 0 ? adj.join(', ') + ' ' : '';
+  return `${prefix}${emo} instrumental music`;
+}
+
+function ecpRefreshUI() {
+  // Update cursor
+  const cursor = document.getElementById('ecpCursor');
+  if (cursor) {
+    cursor.style.left   = (ecpState.padX * 100) + '%';
+    cursor.style.bottom = (ecpState.padY * 100) + '%';
+  }
+
+  // Highlight nearest emotion label
+  const nearest = ecpNearestEmotion(ecpState.padX, ecpState.padY);
+  document.querySelectorAll('.ecp-emotion-dot').forEach(el => {
+    el.classList.toggle('nearest', el.dataset.emotion === nearest);
+  });
+
+  // Detected label
+  const det = document.getElementById('ecpDetected');
+  if (det) det.innerHTML = `Detected: <strong>${nearest}</strong>`;
+
+  // Prompt preview
+  const pp = document.getElementById('ecpPromptText');
+  if (pp) pp.textContent = ecpBuildPrompt();
+}
+
 // ── STATE ──────────────────────────────────────
 let currentYear, currentMonth;
 let selectedDate = null;
@@ -464,7 +750,7 @@ let conversationDone = false;
 let generatedData    = null;
 let selectedClipId   = null;
 let selectedClipUrl  = null;
-let currentAudio     = null;   // global Audio instance for clip preview
+let currentAudio     = null;
 let entries = {};
 
 const MONTHS = ["January","February","March","April","May","June",
@@ -554,7 +840,6 @@ async function selectDate(dateStr, existingEntry) {
 
 // ── PANELS ────────────────────────────────────
 function setMain(html) {
-  // Stop any playing audio before replacing content
   const audioEl = document.getElementById('clipAudio');
   if (audioEl) { audioEl.pause(); audioEl.src = ''; }
 
@@ -637,7 +922,6 @@ async function startNewEntry(dateStr) {
     </div>
   `);
 
-  // Start session
   appendTyping();
   const res  = await fetch('/api/chat/start', {method:'POST'});
   const data = await res.json();
@@ -726,35 +1010,58 @@ async function generateEntry() {
   showGenerateResult(generatedData);
 }
 
+// ══════════════════════════════════════════════
+//  SHOW GENERATION RESULT + EMOTION CONTROL PANEL
+// ══════════════════════════════════════════════
 function showGenerateResult(data) {
   const friendly = new Date(data.date + 'T00:00:00').toLocaleDateString('en-US',
     {weekday:'long', month:'long', day:'numeric'});
 
-  const clipsHtml = data.clips.map(c => `
-    <div class="clip-card" id="clip-${c.id}" onclick="selectClip(${c.id},'${escAttr(c.url)}')">
-      <div class="clip-icon">♫</div>
-      <div>
-        <div class="clip-label">${escHtml(c.label)}</div>
-        <div style="font-size:0.72rem;color:var(--muted);font-family:var(--mono);margin-top:2px">10 sec · select to use</div>
-      </div>
-    </div>
-  `).join('');
+  // Seed the ECP state from the detected emotion
+  const emoPos = EMOTIONS_MAP[data.emotion] || EMOTIONS_MAP.other;
+  ecpState = { padX: emoPos.x, padY: emoPos.y, tempo:0.5, brightness:0.5, complexity:0.5, intensity:0.5 };
+
+  // Build clip cards HTML
+  const clipsHtml = buildClipsHtml(data.clips);
+
+  // Build emotion-dot labels for the 2D pad
+  let emotionDotsHtml = '';
+  for (const [name, pos] of Object.entries(EMOTIONS_MAP)) {
+    emotionDotsHtml += `<div class="ecp-emotion-dot" data-emotion="${name}"
+      style="left:${pos.x*100}%;bottom:${pos.y*100}%;color:var(--muted)">${name}</div>`;
+  }
+
+  // Build slider rows
+  let slidersHtml = '';
+  for (const a of ATTR_DEFS) {
+    slidersHtml += `
+      <div class="ecp-slider-row">
+        <span class="ecp-slider-icon">${a.icon}</span>
+        <span class="ecp-slider-lo">${a.lo}</span>
+        <input type="range" min="0" max="100" value="50" class="ecp-slider-track"
+               id="ecpSlider_${a.key}" oninput="onEcpSlider('${a.key}', this.value)"/>
+        <span class="ecp-slider-hi">${a.hi}</span>
+      </div>`;
+  }
 
   setMain(`
+    <!-- Diary review -->
     <div class="panel">
       <div class="panel-title">📖 ${friendly} — Review Entry</div>
       <div class="past-emotion-row">
-        <div class="emotion-badge">◈ ${data.emotion}</div>
+        <div class="emotion-badge">◈ ${escHtml(data.emotion)}</div>
         <span style="font-family:var(--mono);font-size:0.72rem;color:var(--muted)">dominant emotion</span>
       </div>
       <div class="diary-text">${escHtml(data.summary)}</div>
     </div>
 
-    <div class="panel">
+    <!-- Soundtrack selection -->
+    <div class="panel" id="soundtrackPanel">
       <div class="panel-title">🎵 Choose Your Soundtrack</div>
       <p style="font-size:0.9rem;color:var(--muted);margin-bottom:14px">
         Four tracks were generated for your emotion. Select the one that resonates most.
       </p>
+
       <div id="clipPlayerRow" class="past-music-player" style="margin-bottom:16px">
         <span class="music-note-anim">♪</span>
         <div>
@@ -762,7 +1069,67 @@ function showGenerateResult(data) {
           <audio controls id="clipAudio" style="width:260px;accent-color:var(--accent)"></audio>
         </div>
       </div>
-      <div class="clips-grid">${clipsHtml}</div>
+      <div class="clips-grid" id="clipsGrid">${clipsHtml}</div>
+
+      <!-- ── Emotion Control Panel toggle ── -->
+      <div class="ecp-toggle" onclick="toggleEcp()">
+        <span class="ecp-toggle-arrow" id="ecpArrow">▸</span>
+        <span class="ecp-toggle-label">Not quite right? Shape your sound</span>
+        <span class="ecp-toggle-line"></span>
+      </div>
+
+      <div class="ecp-body" id="ecpBody">
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+          <!-- Left: 2D Emotion Pad -->
+          <div>
+            <div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);
+                        letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px">
+              Emotion Space
+            </div>
+            <div class="ecp-pad-wrap">
+              <div class="ecp-pad" id="ecpPad">
+                <div class="ecp-pad-label" style="bottom:6px;left:50%;transform:translateX(-50%)">VALENCE →</div>
+                <div class="ecp-pad-label" style="left:6px;top:50%;transform:translateY(-50%) rotate(-90deg)">ENERGY →</div>
+                ${emotionDotsHtml}
+                <div class="ecp-cursor" id="ecpCursor"></div>
+              </div>
+            </div>
+            <div class="ecp-detected" id="ecpDetected"></div>
+          </div>
+
+          <!-- Right: Attribute Sliders -->
+          <div>
+            <div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);
+                        letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px">
+              Attributes
+            </div>
+            <div class="ecp-sliders">${slidersHtml}</div>
+          </div>
+        </div>
+
+        <!-- Prompt preview -->
+        <div class="ecp-prompt-preview">
+          <div class="ecp-prompt-label">Generated Prompt</div>
+          <div id="ecpPromptText"></div>
+        </div>
+
+        <!-- Loading state (hidden by default) -->
+        <div class="ecp-loading" id="ecpLoading" style="display:none">
+          <div class="ecp-spinner"></div>
+          <span>Regenerating clips…</span>
+        </div>
+
+        <!-- Regenerate button -->
+        <div class="ecp-actions">
+          <button class="btn btn-primary" id="ecpRegenBtn" onclick="regenerateMusic()">
+            ✦ Regenerate with these settings
+          </button>
+        </div>
+
+      </div><!-- /ecp-body -->
+
+      <!-- Save / Discard -->
       <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:10px">
         <button class="btn btn-secondary" onclick="loadEntries()">Discard</button>
         <button class="btn btn-primary" id="saveBtn" disabled onclick="saveEntry()">✦ Save Diary Entry</button>
@@ -770,23 +1137,144 @@ function showGenerateResult(data) {
     </div>
   `);
 
-  // Autoplay the first clip
+  // Wire up the 2D pad interactions
+  initEcpPad();
+
+  // Seed UI
+  ecpRefreshUI();
+
+  // Auto-play first clip
   if (data.clips && data.clips.length > 0) {
     selectClip(data.clips[0].id, data.clips[0].url);
   }
 }
- 
 
+// ── Build clip card HTML from an array ───────
+function buildClipsHtml(clips) {
+  return clips.map(c => `
+    <div class="clip-card" id="clip-${c.id}" onclick="selectClip(${c.id},'${escAttr(c.url)}')">
+      <div class="clip-icon">♫</div>
+      <div>
+        <div class="clip-label">${escHtml(c.label)}</div>
+        <div style="font-size:0.72rem;color:var(--muted);font-family:var(--mono);margin-top:2px">select to preview</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── ECP toggle open/close ────────────────────
+function toggleEcp() {
+  const body  = document.getElementById('ecpBody');
+  const arrow = document.getElementById('ecpArrow');
+  body.classList.toggle('open');
+  arrow.classList.toggle('open');
+}
+
+// ── ECP 2D pad pointer handling ──────────────
+function initEcpPad() {
+  const pad = document.getElementById('ecpPad');
+  if (!pad) return;
+
+  let dragging = false;
+
+  function update(e) {
+    const r = pad.getBoundingClientRect();
+    const cx = e.touches ? e.touches[0].clientX : e.clientX;
+    const cy = e.touches ? e.touches[0].clientY : e.clientY;
+    ecpState.padX = Math.max(0, Math.min(1, (cx - r.left) / r.width));
+    ecpState.padY = Math.max(0, Math.min(1, 1 - (cy - r.top) / r.height));
+
+    const cursor = document.getElementById('ecpCursor');
+    if (cursor) cursor.classList.add('dragging');
+
+    ecpRefreshUI();
+  }
+
+  pad.addEventListener('mousedown',  e => { dragging = true; update(e); });
+  pad.addEventListener('touchstart', e => { dragging = true; update(e); }, {passive:true});
+  window.addEventListener('mousemove', e => { if (dragging) update(e); });
+  window.addEventListener('touchmove', e => { if (dragging) { e.preventDefault(); update(e); } }, {passive:false});
+  window.addEventListener('mouseup',  () => {
+    dragging = false;
+    const cursor = document.getElementById('ecpCursor');
+    if (cursor) cursor.classList.remove('dragging');
+  });
+  window.addEventListener('touchend', () => {
+    dragging = false;
+    const cursor = document.getElementById('ecpCursor');
+    if (cursor) cursor.classList.remove('dragging');
+  });
+}
+
+// ── ECP slider handler ───────────────────────
+function onEcpSlider(key, val) {
+  ecpState[key] = val / 100;
+  ecpRefreshUI();
+}
+
+// ══════════════════════════════════════════════
+//  REGENERATE MUSIC  (calls /api/regenerate)
+// ══════════════════════════════════════════════
+async function regenerateMusic() {
+  const btn     = document.getElementById('ecpRegenBtn');
+  const loading = document.getElementById('ecpLoading');
+  btn.disabled = true;
+  btn.textContent = '… Regenerating';
+  loading.style.display = 'flex';
+
+  const emotion = ecpNearestEmotion(ecpState.padX, ecpState.padY);
+  const prompt  = ecpBuildPrompt();
+
+  try {
+    const res = await fetch('/api/regenerate', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ date: selectedDate, emotion, prompt }),
+    });
+    const data = await res.json();
+
+    if (data.error) {
+      toast('Error: ' + data.error);
+      return;
+    }
+
+    // Replace clips in the grid
+    const grid = document.getElementById('clipsGrid');
+    if (grid) grid.innerHTML = buildClipsHtml(data.clips);
+
+    // Reset selection
+    selectedClipId  = null;
+    selectedClipUrl = null;
+    document.getElementById('saveBtn').disabled = true;
+
+    // Update the emotion badge in the diary panel
+    generatedData.emotion = data.emotion;
+    generatedData.clips   = data.clips;
+
+    // Auto-play first new clip
+    if (data.clips && data.clips.length > 0) {
+      selectClip(data.clips[0].id, data.clips[0].url);
+    }
+
+    toast('✦ New clips generated!');
+  } catch (err) {
+    toast('Regeneration failed — see console');
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✦ Regenerate with these settings';
+    loading.style.display = 'none';
+  }
+}
+
+// ── CLIP SELECT & SAVE ───────────────────────
 function selectClip(id, url) {
-  selectedClipId = id;
-  selectedClipUrl = url;    
-
-  console.log("Selected clip:", id, url);
+  selectedClipId  = id;
+  selectedClipUrl = url;
 
   document.querySelectorAll('.clip-card').forEach(c => c.classList.remove('selected'));
   document.getElementById(`clip-${id}`)?.classList.add('selected');
 
-  // Play the selected clip
   const audioEl = document.getElementById('clipAudio');
   if (audioEl) {
     audioEl.src = url;
@@ -795,6 +1283,7 @@ function selectClip(id, url) {
 
   document.getElementById('saveBtn').disabled = false;
 }
+
 async function saveEntry() {
   const res = await fetch('/api/select_music', {
     method:'POST',

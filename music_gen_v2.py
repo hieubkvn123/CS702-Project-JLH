@@ -146,20 +146,35 @@ class MusicDiaryGenerator:
         num_clips: int = 4,
         max_new_tokens: int = 256,
         base_name: Optional[str] = None,
+        custom_prompt: Optional[str] = None,
     ) -> Dict:
         """
-        Returns:
-        {
-            "emotion": "...",
-            "prompt": "...",
-            "clips": [
-                {"id": 1, "label": "...", "file_path": "...", "music_url": "..."},
-                ...
-            ]
-        }
+        Generate music clips for a given emotion.
+
+        Parameters
+        ----------
+        emotion : str
+            Emotion keyword (will be normalised).
+        num_clips : int
+            Number of clips to generate in parallel.
+        max_new_tokens : int
+            Length control – higher means longer audio.
+        base_name : str | None
+            Filename prefix for the generated WAV files.
+        custom_prompt : str | None
+            If provided, this exact text is used as the MusicGen prompt
+            instead of picking from the template pool.  This enables the
+            emotion-control-panel workflow where the front-end composes a
+            prompt from the 2-D pad + attribute sliders.
+
+        Returns
+        -------
+        dict with keys: emotion, prompt, clips (list of dicts).
         """
         emotion_norm = self.normalize_emotion(emotion)
-        prompt = self.generate_prompt(emotion_norm)
+
+        # Use the caller-supplied prompt when available, otherwise pick one
+        prompt = custom_prompt if custom_prompt else self.generate_prompt(emotion_norm)
 
         inputs = self.processor(
             text=[prompt] * num_clips,
@@ -201,12 +216,14 @@ class MusicDiaryGenerator:
         emotion: str,
         max_new_tokens: int = 256,
         base_name: Optional[str] = None,
+        custom_prompt: Optional[str] = None,
     ) -> Dict:
         result = self.generate_clips(
             emotion=emotion,
             num_clips=1,
             max_new_tokens=max_new_tokens,
             base_name=base_name,
+            custom_prompt=custom_prompt,
         )
         return {
             "emotion": result["emotion"],

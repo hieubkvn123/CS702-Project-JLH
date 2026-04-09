@@ -53,6 +53,29 @@ app.secret_key = "music-diary-secret-key"
 # ─────────────────────────────────────────────
 DIARY_ENTRIES = {}   # { "YYYY-MM-DD": { text, emotion, music_url, summary } }
 CONVERSATIONS = {}   # { session_id: [ {role, content}, ... ] }
+PENDING_FILES = {}   # { "YYYY-MM-DD": [ "/abs/path/to/clip.wav", ... ] }
+
+# ─────────────────────────────────────────────
+#  HELPERS
+# ─────────────────────────────────────────────
+
+def _cleanup_pending(date_str):
+    """Delete all temporary WAV files tracked for a given date."""
+    for fpath in PENDING_FILES.pop(date_str, []):
+        try:
+            if os.path.isfile(fpath):
+                os.remove(fpath)
+                print(f"[cleanup] deleted {fpath}")
+        except OSError as e:
+            print(f"[cleanup] failed to delete {fpath}: {e}")
+
+
+def _track_clips(date_str, result_clips):
+    """Record file paths from a generate_clips result for later cleanup."""
+    paths = [clip["file_path"] for clip in result_clips]
+    PENDING_FILES.setdefault(date_str, []).extend(paths)
+    return paths
+
 
 # ─────────────────────────────────────────────
 #  ROUTES
@@ -144,6 +167,10 @@ def generate_entry():
         base_name=f"{emotion}_{uuid.uuid4().hex[:8]}",
     )
 
+    # Clean up any previous pending files for this date, then track new ones
+    _cleanup_pending(date_str)
+    _track_clips(date_str, result["clips"])
+
     clips = []
     for clip in result["clips"]:
         clips.append({
@@ -172,6 +199,71 @@ def generate_entry():
     })
 
 
+@app.route("/api/regenerate", methods=["POST"])
+def regenerate_music():
+    """
+    Regenerate music clips using the emotion-control-panel parameters.
+
+    Expects JSON body:
+      - date       : "YYYY-MM-DD"
+      - emotion    : normalised emotion keyword from the 2-D pad
+      - prompt     : full MusicGen prompt built by the front-end
+                     from pad position + attribute sliders
+    """
+    data = request.get_json()
+    date_str = data.get("date")
+    emotion = data.get("emotion", "other")
+    custom_prompt = data.get("prompt", "")
+
+    if date_str not in DIARY_ENTRIES:
+        return jsonify({"error": "Entry not found"}), 404
+
+    if not custom_prompt:
+        return jsonify({"error": "prompt is required"}), 400
+
+    # Temporarily override generate_prompt so generate_clips uses our
+    # custom prompt without needing to modify music_gen_v2.py.
+    original_generate_prompt = music_generator.generate_prompt
+    music_generator.generate_prompt = lambda _emotion: custom_prompt
+    try:
+        result = music_generator.generate_clips(
+            emotion=emotion,
+            num_clips=4,
+            max_new_tokens=256,
+            base_name=f"{emotion}_regen_{uuid.uuid4().hex[:8]}",
+        )
+    finally:
+        music_generator.generate_prompt = original_generate_prompt
+
+    clips = []
+    for clip in result["clips"]:
+        clips.append({
+            "id": clip["id"],
+            "label": clip["label"],
+            "url": clip["music_url"],
+            "prompt": clip["prompt"],
+        })
+
+    print(f"[regenerate] emotion={emotion}, prompt={custom_prompt!r}, clips={[c['url'] for c in clips]}")
+
+    # Delete previous round's temporary files, then track the new ones
+    _cleanup_pending(date_str)
+    _track_clips(date_str, result["clips"])
+
+    # Update the entry with new clips (keep summary intact)
+    DIARY_ENTRIES[date_str]["emotion"] = emotion
+    DIARY_ENTRIES[date_str]["clips"] = clips
+    DIARY_ENTRIES[date_str]["music_url"] = None
+    DIARY_ENTRIES[date_str]["status"] = "pending_music"
+
+    return jsonify({
+        "emotion": emotion,
+        "prompt": custom_prompt,
+        "clips": clips,
+        "date": date_str,
+    })
+
+
 @app.route("/api/select_music", methods=["POST"])
 def select_music():
     """User picks one of the generated clips; finalise the entry."""
@@ -185,6 +277,21 @@ def select_music():
 
     if not clip_url:
         return jsonify({"error": "clip_url is required"}), 400
+
+    # Resolve the selected clip's filename to an absolute path
+    selected_filename = clip_url.rsplit("/", 1)[-1]  # e.g. "sad_regen_abc123_2.wav"
+    selected_path = os.path.join(GENERATED_MUSIC_DIR, selected_filename)
+
+    # Delete every pending file for this date EXCEPT the selected one
+    for fpath in PENDING_FILES.pop(date_str, []):
+        if os.path.normpath(fpath) == os.path.normpath(selected_path):
+            continue
+        try:
+            if os.path.isfile(fpath):
+                os.remove(fpath)
+                print(f"[save] deleted {fpath}")
+        except OSError as e:
+            print(f"[save] failed to delete {fpath}: {e}")
 
     DIARY_ENTRIES[date_str]["music_url"] = clip_url
     DIARY_ENTRIES[date_str]["selected_clip_id"] = clip_id
